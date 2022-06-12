@@ -1,0 +1,112 @@
+import requests
+from PySimpleGUI import PySimpleGUI as sg
+
+link = 'https://api2.binance.com/api/v3/ticker/24hr'
+requisicao = requests.get(link)
+dicionario_da_requisicao = requisicao.json()
+
+def main2(chance_de_retorno):
+    sg.theme('DefaultNoMoreNagging')
+    result = [
+        [sg.Text(f'Taxa de Risco/Retorno definido em {chance_de_retorno}%')],
+        [sg.Button(f'Bitcoin', size = 30)],
+        [sg.Button(f'Litecoin', size = 30)],
+        [sg.Button(f'Cardano', size = 30)],
+        [sg.Button(f'Polkadot', size = 30)],
+        [sg.Button(f'Solana', size = 30)],
+        [sg.Button(f'Etherium', size = 30)],
+        [sg.Button(f'Dogecoin', size = 30)],
+        [sg.Button(f'Cake', size = 30)],
+        [sg.Button(f'Apecoin', size = 30)],
+    ]
+
+    layout = [
+        [sg.Frame('Moedas', layout = result)],
+    ]
+    return sg.Window('Cotação', layout = layout, finalize = True)
+
+
+def mostrar_moeda(indice, chance_de_retorno):
+    sg.theme('DefaultNoMoreNagging')
+    par = dicionario_da_requisicao[indice]['symbol']
+    porcent_change = dicionario_da_requisicao[indice]['priceChangePercent']
+    preco_mais_alto = dicionario_da_requisicao[indice]['highPrice']
+    preco_mais_baixo = dicionario_da_requisicao[indice]['lowPrice']
+    valor_da_moeda = dicionario_da_requisicao[indice]['bidPrice']
+    if float(porcent_change) > chance_de_retorno:
+        result = [
+            [sg.Text(f'Par: {par}')],
+            [sg.Text(f'Teve uma mudança de: {float(porcent_change):.2f}% nas ultimas 24Hrs')],
+            [sg.Text(f'Seu preço mais alto foi: R$ {float(preco_mais_alto):.2f}')],
+            [sg.Text(f'Seu preço mais baixo foi: R$ {float(preco_mais_baixo):.2f}')],
+            [sg.Text(f'Valor atual: R$ {float(valor_da_moeda):.2f}')],
+            [sg.Text(f'É aconselhavel comprar em: {(float(preco_mais_alto) + float(preco_mais_baixo)) / 2}')]
+        ]
+    elif float(porcent_change) < chance_de_retorno * -1:
+        result = [
+        [sg.Text(f'Par: {par}')],
+        [sg.Text(f'Teve uma mudança de: {float(porcent_change):.2f}% nas ultimas 24Hrs')],
+        [sg.Text(f'Seu preço mais alto foi: R$ {float(preco_mais_alto):.2f}')],
+        [sg.Text(f'Seu preço mais baixo foi: R$ {float(preco_mais_baixo):.2f}')],
+        [sg.Text(f'Valor atual: R$ {float(valor_da_moeda):.2f}')],
+        [sg.Text(f'É aconselhavel vender em: {(float(preco_mais_alto) + float(preco_mais_baixo)) / 2}')]
+        ]
+    else:
+        result = [
+        [sg.Text(f'Par: {par}')],
+        [sg.Text(f'Teve uma mudança de: {float(porcent_change):.2f}% nas ultimas 24Hrs')],
+        [sg.Text(f'Seu preço mais alto foi: R$ {float(preco_mais_alto):.2f}')],
+        [sg.Text(f'Seu preço mais baixo foi: R$ {float(preco_mais_baixo):.2f}')],
+        [sg.Text(f'Valor atual: R$ {float(valor_da_moeda):.2f}')],
+        [sg.Text(f'Não é recomendável investir nessa moeda agora.')]
+        ]
+    layout = [
+        [sg.Frame('', layout = result, key = 'container')],
+    ]
+    return sg.Window('Resultados', layout = layout, finalize = True)
+
+def main():
+    sg.theme('DefaultNoMoreNagging')
+    result = [
+        [sg.Text('Chance de retorno em %'), sg.Combo(values = list(range(30)),key = 'chance_de_retorno', default_value = 1, size = (5))],
+        [sg.Button('Validar', size = 25)]
+    ]
+
+    layout_login = [
+        [sg.Frame('', layout = result)],
+    ]
+    return sg.Window('Definir', layout = layout_login, finalize = True)
+
+janela = main()
+
+while True:
+    eventos, valores = janela.read()
+    if eventos == sg.WINDOW_CLOSED:
+        break
+    elif eventos == 'Validar':
+        chance_de_retorno = valores['chance_de_retorno']
+        chance_de_retorno = int(chance_de_retorno)
+        janela.close()
+        janela = main2(chance_de_retorno)
+        while True:
+            eventos, valores = janela.read()
+            if eventos == sg.WINDOW_CLOSED:
+                break
+            elif eventos == 'Bitcoin':
+                mostrar_moeda(1087, chance_de_retorno)
+            elif eventos == 'Litecoin':
+                mostrar_moeda(1248, chance_de_retorno)
+            elif eventos == 'Cardano':
+                mostrar_moeda(1305, chance_de_retorno)
+            elif eventos == 'Polkadot':
+                mostrar_moeda(1315, chance_de_retorno)
+            elif eventos == 'Solana':
+                mostrar_moeda(1498, chance_de_retorno)
+            elif eventos == 'Etherium':
+                mostrar_moeda(1130, chance_de_retorno)
+            elif eventos == 'Dogecoin':
+                mostrar_moeda(1265, chance_de_retorno)
+            elif eventos == 'Cake':
+                mostrar_moeda(1531, chance_de_retorno)
+            elif eventos == 'Apecoin':
+                mostrar_moeda(2016, chance_de_retorno)
